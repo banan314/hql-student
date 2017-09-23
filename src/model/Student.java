@@ -15,4 +15,9 @@ public class Student {
     @Getter @Setter private int marks;
 
     @OneToMany(mappedBy = "student") @Getter @Setter private List<Laptop> laptops;
+
+    @Override
+    public String toString() {
+        return "Student {"+"rollNo="+rollNo+", name='"+name+'\''+", marks="+marks+'}';
+    }
 }

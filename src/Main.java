@@ -1,17 +1,14 @@
-import model.Laptop;
-import model.Student;
-
 import org.hibernate.HibernateException;
-import org.hibernate.Metamodel;
-import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.service.ServiceRegistry;
+import org.hibernate.query.Query;
 
-import javax.persistence.metamodel.EntityType;
+import lombok.val;
+import model.Laptop;
+import model.Student;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Random;
 
 public class Main {
@@ -26,11 +23,6 @@ public class Main {
         } catch (Throwable ex) {
             throw new ExceptionInInitializerError(ex);
         }
-    }
-
-    public static Session getSession() throws HibernateException {
-        ourSessionFactory = configuration.buildSessionFactory();
-        return ourSessionFactory.openSession();
     }
 
     public static void main(final String[] args) throws Exception {
@@ -49,17 +41,14 @@ public class Main {
                 session.save(s);
             }
 
-            session.getTransaction().commit();
+            Query query = session.createQuery("from Student where marks > 3");
+            List<Student> goodStudents = query.list();
 
-            final Metamodel metamodel = session.getSessionFactory().getMetamodel();
-            for(EntityType<?> entityType : metamodel.getEntities()) {
-                final String entityName = entityType.getName();
-                final Query query = session.createQuery("from "+entityName);
-                System.out.println("executing: "+query.getQueryString());
-                for(Object o : query.list()) {
-                    System.out.println("  "+o);
-                }
+            for(val s : goodStudents) {
+                System.out.println(s);
             }
+
+            session.getTransaction().commit();
         } finally {
             session.close();
         }
@@ -67,5 +56,10 @@ public class Main {
 
     private static void lookAround() {
         configuration.addAnnotatedClass(Student.class).addAnnotatedClass(Laptop.class);
+    }
+
+    public static Session getSession() throws HibernateException {
+        ourSessionFactory = configuration.buildSessionFactory();
+        return ourSessionFactory.openSession();
     }
 }
